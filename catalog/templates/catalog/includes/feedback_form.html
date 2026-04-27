@@ -1,0 +1,23 @@
+<!-- feedback_form.html -->
+<form method="post" action="" class="form-floating">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="name">Имя</label>
+        <input type="text" name="name" class="form-control" id="name" placeholder="Ваше имя" required>
+    </div>
+    <div class="mb-3">
+        <label for="phone">Телефон</label>
+        <input type="text" name="phone" class="form-control" id="phone" placeholder="Контактный телефон" required>
+    </div>
+    <div class="mb-3">
+        <label for="message">Сообщение</label>
+        <textarea name="message" class="form-control" id="message" placeholder="Ваше сообщение" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Отправить</button>
+</form>
+
+{% if message_sent %}
+<div class="alert alert-success mt-3" role="alert">
+    <strong>Спасибо!</strong> Ваше сообщение успешно отправлено.
+</div>
+{% endif %}
