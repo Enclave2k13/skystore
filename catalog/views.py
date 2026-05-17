@@ -1,25 +1,33 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.paginator import Paginator
+from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.urls import reverse_lazy
+from django.shortcuts import redirect
 from catalog.models import Product, Contact
 from .forms import ProductForm
 
 
-def home(request):
-    products = Product.objects.all()
+class HomeView(ListView):
+    """Главная страница со списком товаров и пагинацией"""
+    model = Product
+    template_name = 'catalog/home.html'
+    context_object_name = 'page_obj'
+    paginate_by = 3
 
-    paginator = Paginator(products, 3)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, 'catalog/home.html', {'page_obj': page_obj})
+    def get_queryset(self):
+        return Product.objects.all()
 
 
-def contacts(request):
-    message_sent = False
+class ContactsView(TemplateView):
+    """Страница контактов с формой обратной связи"""
+    template_name = 'catalog/contacts.html'
 
-    contact_info = Contact.objects.first()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['contact'] = Contact.objects.first()
+        context['message_sent'] = False
+        return context
 
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         message = request.POST.get('message')
@@ -31,29 +39,24 @@ def contacts(request):
         print(f"Сообщение: {message}")
         print("=" * 50 + "\n")
 
-        message_sent = True
-
-    return render(request, 'catalog/contacts.html', {
-        'message_sent': message_sent,
-        'contact': contact_info
-    })
+        context['message_sent'] = True
+        return self.render_to_response(context)
 
 
-def product_detail(request, pk):
-    """Контроллер для страницы товара (Задание 1)"""
-    product = get_object_or_404(Product, pk=pk)
-    return render(request, 'catalog/product_detail.html', {'product': product})
+class ProductDetailView(DetailView):
+    """Детальная страница товара"""
+    model = Product
+    template_name = 'catalog/product_detail.html'
+    context_object_name = 'product'
 
 
-def product_create(request):
-    """Контроллер для добавления нового товара"""
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = form.save()
-            print(f"\nДОБАВЛЕН НОВЫЙ ТОВАР: {product.name} (ID: {product.pk})")
-            return redirect('catalog:product_detail', pk=product.pk)
-    else:
-        form = ProductForm()
+class ProductCreateView(CreateView):
+    """Страница добавления нового товара"""
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_form.html'
 
-    return render(request, 'catalog/product_form.html', {'form': form})
+    def form_valid(self, form):
+        product = form.save()
+        print(f"\n✅ ДОБАВЛЕН НОВЫЙ ТОВАР: {product.name} (ID: {product.pk})")
+        return redirect('catalog:product_detail', pk=product.pk)
