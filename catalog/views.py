@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from catalog.models import Product, Contact
@@ -9,7 +9,7 @@ class HomeView(ListView):
     """Главная страница со списком товаров и пагинацией"""
     model = Product
     template_name = 'catalog/home.html'
-    context_object_name = 'page_obj'
+    context_object_name = 'products'
     paginate_by = 3
 
     def get_queryset(self):
@@ -60,3 +60,19 @@ class ProductCreateView(CreateView):
         product = form.save()
         print(f"\n✅ ДОБАВЛЕН НОВЫЙ ТОВАР: {product.name} (ID: {product.pk})")
         return redirect('catalog:product_detail', pk=product.pk)
+
+class ProductUpdateView(UpdateView):
+    """Редактирование товара"""
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('catalog:product_detail', kwargs={'pk': self.object.pk})
+
+
+class ProductDeleteView(DeleteView):
+    """Удаление товара"""
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
+    success_url = reverse_lazy('catalog:home')

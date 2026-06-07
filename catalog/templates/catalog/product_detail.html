@@ -22,6 +22,8 @@
         </p>
         <div class="mt-4">
             <a href="{% url 'catalog:home' %}" class="btn btn-secondary">← Назад к каталогу</a>
+            <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
+            <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
             <button class="btn btn-primary">Купить</button>
         </div>
     </div>
