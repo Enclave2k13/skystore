@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from catalog.models import Product, Contact
 from .forms import ProductForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class HomeView(ListView):
@@ -50,29 +51,32 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     """Страница добавления нового товара"""
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
+    login_url = 'users:login'
 
     def form_valid(self, form):
         product = form.save()
         print(f"\n✅ ДОБАВЛЕН НОВЫЙ ТОВАР: {product.name} (ID: {product.pk})")
         return redirect('catalog:product_detail', pk=product.pk)
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование товара"""
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
+    login_url = 'users:login'
 
     def get_success_url(self):
         return reverse_lazy('catalog:product_detail', kwargs={'pk': self.object.pk})
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление товара"""
     model = Product
     template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('catalog:home')
+    login_url = 'users:login'

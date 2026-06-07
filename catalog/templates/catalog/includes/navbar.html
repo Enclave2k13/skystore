@@ -5,5 +5,14 @@
         <a class="p-2 btn btn-outline-primary" href="{% url 'catalog:contacts' %}">Контакты</a>
         <a class="p-2 btn btn-outline-info" href="{% url 'blog:list' %}">Блог</a>
         <a class="p-2 btn btn-outline-success" href="{% url 'catalog:product_create' %}">+ Добавить товар</a>
+
+        {% if user.is_authenticated %}
+            <span class="p-2 text-muted">{{ user.email }}</span>
+            <a class="p-2 btn btn-outline-success" href="{% url 'users:profile_edit' %}">Профиль</a>
+            <a class="p-2 btn btn-outline-danger" href="{% url 'users:logout' %}">Выйти</a>
+        {% else %}
+            <a class="p-2 btn btn-outline-secondary" href="{% url 'users:login' %}">Войти</a>
+            <a class="p-2 btn btn-outline-secondary" href="{% url 'users:register' %}">Регистрация</a>
+        {% endif %}
     </nav>
 </div>
