@@ -1,7 +1,7 @@
-from django.shortcuts import redirect
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import BlogPost
 from .forms import BlogPostForm
@@ -41,15 +41,18 @@ class BlogPostDetailView(DetailView):
         return obj
 
 
-class BlogPostCreateView(CreateView):
+class BlogPostCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     """Создание новой блоговой записи"""
     model = BlogPost
     form_class = BlogPostForm
     template_name = 'blog/blogpost_form.html'
     success_url = reverse_lazy('blog:list')
 
+    def test_func(self):
+        return self.request.user.has_perm('blog.can_manage_blog')
 
-class BlogPostUpdateView(UpdateView):
+
+class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """Редактирование блоговой записи"""
     model = BlogPost
     form_class = BlogPostForm
@@ -58,9 +61,15 @@ class BlogPostUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('blog:detail', kwargs={'pk': self.object.pk})
 
+    def test_func(self):
+        return self.request.user.has_perm('blog.can_manage_blog')
 
-class BlogPostDeleteView(DeleteView):
+
+class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Удаление блоговой записи"""
     model = BlogPost
     template_name = 'blog/blogpost_confirm_delete.html'
     success_url = reverse_lazy('blog:list')
+
+    def test_func(self):
+        return self.request.user.has_perm('blog.can_manage_blog')
