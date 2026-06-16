@@ -15,6 +15,22 @@ from dotenv import load_dotenv
 
 from pathlib import Path
 
+# НАСТРОЙКИ КЕШИРОВАНИЯ С REDIS
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'skystore',
+    }
+}
+
+# Храним сессии в кеше (опционально, но улучшает производительность)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
