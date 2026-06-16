@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='product',
-            options={'permissions': [('can_unpublish_product', 'Может отменять публикацию продукта'), ('can_delete_product', 'Может удалять любой продукт')], 'verbose_name': 'продукт', 'verbose_name_plural': 'продукты'},
+            options={'permissions': [('can_unpublish_product', 'Может отменять публикацию продукта')], 'verbose_name': 'продукт', 'verbose_name_plural': 'продукты'},
         ),
         migrations.AddField(
             model_name='product',

@@ -35,7 +35,7 @@
                 <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
             {% endif %}
 
-            {% if user == product.owner or perms.catalog.can_unpublish_product %}
+            {% if user == product.owner or perms.catalog.delete_product  %}
                 <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
             {% endif %}
 

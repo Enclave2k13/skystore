@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import BlogPost
 from .forms import BlogPostForm
@@ -41,18 +41,19 @@ class BlogPostDetailView(DetailView):
         return obj
 
 
-class BlogPostCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class BlogPostCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Создание новой блоговой записи"""
     model = BlogPost
     form_class = BlogPostForm
     template_name = 'blog/blogpost_form.html'
     success_url = reverse_lazy('blog:list')
+    permission_required = 'blog.can_manage_blog'
 
     def test_func(self):
         return self.request.user.has_perm('blog.can_manage_blog')
 
 
-class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class BlogPostUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Редактирование блоговой записи"""
     model = BlogPost
     form_class = BlogPostForm
@@ -65,7 +66,7 @@ class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user.has_perm('blog.can_manage_blog')
 
 
-class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class BlogPostDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """Удаление блоговой записи"""
     model = BlogPost
     template_name = 'blog/blogpost_confirm_delete.html'

@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 from catalog.models import Product, Contact
 from .forms import ProductForm
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 
 class HomeView(ListView):
@@ -64,7 +64,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         print(f"\n✅ ДОБАВЛЕН НОВЫЙ ТОВАР: {product.name} (ID: {product.pk})")
         return redirect('catalog:product_detail', pk=product.pk)
 
-class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Редактирование товара"""
     model = Product
     form_class = ProductForm
@@ -80,7 +80,7 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse_lazy('catalog:product_detail', kwargs={'pk': self.object.pk})
 
 
-class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """Удаление товара"""
     model = Product
     template_name = 'catalog/product_confirm_delete.html'
@@ -90,9 +90,9 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         product = self.get_object()
         user = self.request.user
-        return product.owner == user or user.has_perm('catalog.can_unpublish_product')
+        return product.owner == user or user.has_perm('catalog.delete_product')
 
-class ProductTogglePublishView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ProductTogglePublishView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Переключение статуса публикации"""
     model = Product
     fields = []
