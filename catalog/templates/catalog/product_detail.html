@@ -14,6 +14,14 @@
     <div class="col-md-6">
         <h1 class="display-5">{{ product.name }}</h1>
         <p class="text-muted">Категория: {{ product.category.name }}</p>
+        <p>
+            Статус:
+            {% if product.is_published %}
+                <span class="badge bg-success">Опубликован</span>
+            {% else %}
+                <span class="badge bg-secondary">Не опубликован</span>
+            {% endif %}
+        </p>
         <h2 class="text-primary">$ {{ product.price }}</h2>
         <p class="lead">{{ product.description }}</p>
         <p class="text-muted">
@@ -22,8 +30,24 @@
         </p>
         <div class="mt-4">
             <a href="{% url 'catalog:home' %}" class="btn btn-secondary">← Назад к каталогу</a>
-            <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
-            <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
+
+            {% if user == product.owner %}
+                <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">Редактировать</a>
+            {% endif %}
+
+            {% if user == product.owner or perms.catalog.delete_product  %}
+                <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">Удалить</a>
+            {% endif %}
+
+            {% if perms.catalog.can_unpublish_product %}
+                <form method="post" action="{% url 'catalog:product_toggle_publish' product.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-info">
+                        {% if product.is_published %}Снять с публикации{% else %}Опубликовать{% endif %}
+                    </button>
+                </form>
+            {% endif %}
+
             <button class="btn btn-primary">Купить</button>
         </div>
     </div>
