@@ -1,0 +1,35 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Все категории</h1>
+    <p class="lead">Просматривайте товары по категориям</p>
+</div>
+
+{% for item in categories_data %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="border-bottom pb-2">{{ item.category.name }}</h2>
+        <p class="text-muted">{{ item.category.description }}</p>
+    </div>
+    
+    {% for product in item.products %}
+    <div class="col-12 col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.price|floatformat:2 }} руб.</p>
+                <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-sm btn-primary">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-muted">Нет товаров в этой категории</p>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+
+<a href="{% url 'catalog:home' %}" class="btn btn-secondary">← На главную</a>
+{% endblock %}
