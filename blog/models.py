@@ -14,6 +14,9 @@ class BlogPost(models.Model):
         verbose_name = 'блоговая запись'
         verbose_name_plural = 'блоговые записи'
         ordering = ['-created_at']
+        permissions = [
+            ('can_manage_blog', 'Может управлять блогом (создавать, редактировать, удалять)'),
+        ]
 
     def __str__(self):
         return self.title
