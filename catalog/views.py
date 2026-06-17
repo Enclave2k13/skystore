@@ -99,7 +99,8 @@ class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
 class ProductTogglePublishView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """Переключение статуса публикации"""
     model = Product
-    fields = []
+    fields = ['is_published']
+    permission_required = 'catalog.can_unpublish_product'
     http_method_names = ['post']
 
     def test_func(self):
@@ -118,13 +119,19 @@ class ProductsByCategoryView(ListView):
     paginate_by = 6
 
     def get_queryset(self):
-        category_id = self.kwargs.get('category_id')
-        return get_products_by_category(category_id)
+        category_id = self.kwargs.get('category_id') or self.request.GET.get('category')
+        if category_id:
+            return get_products_by_category(category_id)
+        else:
+            return Product.objects.filter(is_published=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from catalog.models import Category
-        context['category'] = Category.objects.get(id=self.kwargs.get('category_id'))
+        category_id = self.kwargs.get('category_id') or self.request.GET.get('category')
+
+        if category_id:
+            from catalog.models import Category
+            context['category'] = Category.objects.get(id=category_id)
         return context
 
 class CategoriesListView(ListView):
@@ -134,7 +141,3 @@ class CategoriesListView(ListView):
 
     def get_queryset(self):
         return get_categories_with_products()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
